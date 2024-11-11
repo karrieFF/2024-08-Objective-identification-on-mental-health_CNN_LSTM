@@ -1,6 +1,7 @@
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import torch
+import torch.nn.functional as F
 
 # Define the CNN+LSTM model class
 class CNN_LSTM(nn.Module):
@@ -8,7 +9,7 @@ class CNN_LSTM(nn.Module):
         super(CNN_LSTM, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.conv = nn.Conv1d(input_size, input_size, kernel_size=2)  # Set conv input to match feature size (39)
+        self.conv = nn.Conv1d(input_size, output_size, kernel_size=2) #, activation = 'relu' # Set conv input to match feature size (39)
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, output_size)
     
@@ -20,11 +21,12 @@ class CNN_LSTM(nn.Module):
         # Pack the sequence to handle variable lengths
         x = x.permute(0, 2, 1)  # Rearrange back for LSTM: (batch_size, seq_len, features)
         packed_input = pack_padded_sequence(x, seq_lengths, batch_first=True, enforce_sorted=False)
-        
+        #print(packed_input.shape)
         # Initialize hidden and cell states
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
-        
+        #print(h0.shape)
+        #print(c0.shape)
         # Pass through LSTM
         packed_output, _ = self.lstm(packed_input, (h0, c0))
         
@@ -36,5 +38,9 @@ class CNN_LSTM(nn.Module):
         
         # Pass through the fully connected layer
         out = self.fc(out)
+
+        # Apply softmax
+        out = torch.sigmoid(out, dim=1)
         
         return out
+        
