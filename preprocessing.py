@@ -78,8 +78,6 @@ def select_survey_data(survey_data):
     select_survey['weeks_followup_survey_96ac_timestamp'] = select_survey['weeks_followup_survey_96ac_timestamp'].dt.date
     return select_survey
 
-# 149    151
-
 def impute_missing(data):
     #impute missing value
     total_ids = data['Id'].unique()
@@ -132,7 +130,6 @@ def extend_time(impute_data_frame, select_survey):
         followup1_time = individual_survey['weeks_followup_survey_timestamp'].iloc[0] if not individual_survey['weeks_followup_survey_timestamp'].empty else pd.NaT
         followup2_time = individual_survey['weeks_followup_survey_96ac_timestamp'].iloc[0] if not individual_survey['weeks_followup_survey_96ac_timestamp'].empty else pd.NaT
         
-        
         start_date = sorted_individual['date'].iloc[0]
         end_date = followup2_time - timedelta(days = 1) # the previous one day of completing the second follow-up, the end day data
         
@@ -164,7 +161,6 @@ def recode_survey_time(new_data_frame, select_survey):
     all_fitbit_id = new_used_fitbit_data['Id'].unique()
 
     for i in range(len(all_fitbit_id)):
-
         fitbit_id = all_fitbit_id[i]
         #outcome variable
         individual_survey = select_survey[select_survey['Id'] == fitbit_id]
@@ -189,16 +185,6 @@ def recode_survey_time(new_data_frame, select_survey):
     return new_used_fitbit_data
 
 def add_gaussian_noise(time_series, mean=0.0, stddev=1.0):
-    """
-    Adds Gaussian noise to a time series.
-     Options:
-     time_series (array-like): A time series to which noise is added.
-     mean (float): The average value of the noise. Default is 0.0.
-     stddev (float): Standard deviation of noise. Default is 1.0.
-
-     Returns:
-     noisy_series (np.array): Time series with added noise.
-     """
      # Gaussian noise generation
     noise = np.random.normal(mean, stddev, len(time_series))
 
